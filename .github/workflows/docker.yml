@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    tags:
-      - "v*.*.*"
   pull_request:
     branches:
       - main
@@ -49,12 +47,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+          flavor: |
+            latest=true
           labels: |
             org.opencontainers.image.title=Development Container Base
             org.opencontainers.image.description=Base container image for development
@@ -82,12 +76,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+          flavor: |
+            latest=true
           labels: |
             org.opencontainers.image.title=Development Container DinD
             org.opencontainers.image.description=Container image for development with Docker-in-Docker
@@ -115,12 +105,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+          flavor: |
+            latest=true
           labels: |
             org.opencontainers.image.title=Development Container K8s
             org.opencontainers.image.description=Container image for development with Kubernetes (K3s)
