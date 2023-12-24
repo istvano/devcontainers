@@ -458,9 +458,12 @@ why you should avoid the `--privileged` flag.
 This project uses the Unlicense but the resulting container images contain
 software under various different open-source licenses.
 
-== Author information
+== Author
+
+Istvan
+
+== Forked from
 
 John Freeman
 
 GantSign Ltd.
-Company No. 06109112 (registered in England)

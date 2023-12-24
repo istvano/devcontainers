@@ -178,10 +178,13 @@ RUN VERSION="`curl -fsSL -H 'Accept: application/vnd.github.v3+json' https://api
     && mkdir -p /usr/local/share/sd \
     && curl -fsSL --output /usr/local/share/sd/LICENSE "${URL}" \
     && URL="`curl -fsSL -H 'Accept: application/vnd.github.v3+json' https://api.github.com/repos/chmln/sd/releases \
-        | jq --raw-output \"[.[] | select(.prerelease == false)] | .[] | select(.tag_name == \\\"${VERSION}\\\") | .assets | .[] | .browser_download_url | select(test(\\\"x86_64-unknown-linux-gnu\$\\\"))\"`" \
-    && curl -fsSL --output /usr/local/share/sd/sd "${URL}" \
+        | jq --raw-output \"[.[] | select(.prerelease == false)] | .[] | select(.tag_name == \\\"${VERSION}\\\") | .assets | .[] | .browser_download_url | select(test(\\\"x86_64-unknown-linux-gnu\\\\\\.tar\\\\\\.gz\$\\\"))\"`" \
+    && curl -fsSL --output tmp.tar.gz "${URL}" \
+    && tar -C /usr/local/share/sd -xvf tmp.tar.gz \
+    && mv /usr/local/share/sd/sd*/* /usr/local/share/sd \
     && chmod +x /usr/local/share/sd/sd \
-    && ln -sf /usr/local/share/sd/sd /usr/local/bin/sd
+    && ln -sf /usr/local/share/sd/sd /usr/local/bin/sd \
+    && rm -f tmp.tar.gz
 
 # Install starship
 RUN VERSION="`curl -fsSL -H 'Accept: application/vnd.github.v3+json' https://api.github.com/repos/starship/starship/releases \
