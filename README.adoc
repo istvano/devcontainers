@@ -1,4 +1,4 @@
-GantSign Development Containers
+Development Containers
 ===============================
 :toc:
 :toc-placement: preamble
@@ -90,7 +90,7 @@ If you just want to try it out, you can run it standalone:
 
 [source,bash]
 ----
-docker run --rm -ti ghcr.io/gantsign/devcontainer-base
+docker run --rm -ti istvano/devcontainer-base
 ----
 
 === Running in VS Code
@@ -144,7 +144,7 @@ Then you need to create a Dockerfile:
 ..devcontainer/Dockerfile
 [source,Dockerfile]
 ----
-FROM ghcr.io/gantsign/devcontainer-base
+FROM istvano/devcontainer-base
 
 # ** [Optional] Uncomment this section to install additional packages. **
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
@@ -241,7 +241,7 @@ Then you need to create a Dockerfile:
 ..devcontainer/Dockerfile
 [source,Dockerfile]
 ----
-FROM ghcr.io/gantsign/devcontainer-dind
+FROM istvano/devcontainer-dind
 
 # ** [Optional] Uncomment this section to install additional packages. **
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
@@ -349,7 +349,7 @@ Then you need to create a Dockerfile:
 ..devcontainer/Dockerfile
 [source,Dockerfile]
 ----
-FROM ghcr.io/gantsign/devcontainer-k8s
+FROM istvano/devcontainer-k8s
 
 # ** [Optional] Uncomment this section to install additional packages. **
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
@@ -407,7 +407,7 @@ If you just want to try it out, you can run it standalone:
 
 [source,bash]
 ----
-docker run --rm -ti --user vscode --entrypoint zsh ghcr.io/gantsign/devcontainer-python3.9
+docker run --rm -ti --user vscode --entrypoint zsh istvano/devcontainer-python3.9
 ----
 
 === Running in VS Code
@@ -420,7 +420,7 @@ Create a `.devcontainer/devcontainer.json` file in the root of your project:
 // For format details, see https://aka.ms/devcontainer.json
 {
 	"name": "GantSign",
-	"image": "ghcr.io/gantsign/devcontainer-python3.9",
+	"image": "istvano/devcontainer-python3.9",
 
 	"settings": {
 		"editor.renderWhitespace": "all",

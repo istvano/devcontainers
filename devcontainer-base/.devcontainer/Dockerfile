@@ -1,4 +1,4 @@
-FROM ghcr.io/gantsign/devcontainer-base
+FROM istvano/devcontainer-base
 
 # ** [Optional] Uncomment this section to install additional packages. **
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \

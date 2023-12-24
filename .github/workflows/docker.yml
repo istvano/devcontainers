@@ -33,7 +33,7 @@ jobs:
         run: |
           DIR_NAME=devcontainer-base
           echo "DIR_NAME=$DIR_NAME" >> $GITHUB_ENV
-          echo "IMAGE_NAME=gantsign/$DIR_NAME" >> $GITHUB_ENV
+          echo "IMAGE_NAME=istvano/$DIR_NAME" >> $GITHUB_ENV
 
       - # Add support for more platforms with QEMU (optional)
           # https://github.com/docker/setup-qemu-action
@@ -75,7 +75,7 @@ jobs:
         run: |
           DIR_NAME=devcontainer-dind
           echo "DIR_NAME=$DIR_NAME" >> $GITHUB_ENV
-          echo "IMAGE_NAME=gantsign/$DIR_NAME" >> $GITHUB_ENV
+          echo "IMAGE_NAME=istvano/$DIR_NAME" >> $GITHUB_ENV
 
       - name: Extract metadata (tags, labels) for Docker (devcontainer-dind)
         id: meta_dind
@@ -108,7 +108,7 @@ jobs:
         run: |
           DIR_NAME=devcontainer-k8s
           echo "DIR_NAME=$DIR_NAME" >> $GITHUB_ENV
-          echo "IMAGE_NAME=gantsign/$DIR_NAME" >> $GITHUB_ENV
+          echo "IMAGE_NAME=istvano/$DIR_NAME" >> $GITHUB_ENV
 
       - name: Extract metadata (tags, labels) for Docker (devcontainer-k8s)
         id: meta_k8s

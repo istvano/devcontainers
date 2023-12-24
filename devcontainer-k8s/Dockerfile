@@ -1,4 +1,4 @@
-FROM ghcr.io/gantsign/devcontainer-dind
+FROM istvano/devcontainer-dind
 
 USER root
 WORKDIR /
