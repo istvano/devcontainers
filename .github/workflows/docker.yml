@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+env:
+  USERNAME: ${{ github.actor }}
+
 jobs:
   build-and-push-images:
     name: Build Docker images and Push to GitHub Container-Registry
@@ -31,7 +34,7 @@ jobs:
         run: |
           DIR_NAME=devcontainer-base
           echo "DIR_NAME=$DIR_NAME" >> $GITHUB_ENV
-          echo "IMAGE_NAME=istvano/$DIR_NAME" >> $GITHUB_ENV
+          echo "IMAGE_NAME=$USERNAME/$DIR_NAME" >> $GITHUB_ENV
 
       - # Add support for more platforms with QEMU (optional)
           # https://github.com/docker/setup-qemu-action
@@ -60,7 +63,7 @@ jobs:
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta_base.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          labels: ${{ steps.meta_base.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           no-cache: ${{ github.event_name != 'pull_request' }}
@@ -69,7 +72,7 @@ jobs:
         run: |
           DIR_NAME=devcontainer-dind
           echo "DIR_NAME=$DIR_NAME" >> $GITHUB_ENV
-          echo "IMAGE_NAME=istvano/$DIR_NAME" >> $GITHUB_ENV
+          echo "IMAGE_NAME=$USERNAME/$DIR_NAME" >> $GITHUB_ENV
 
       - name: Extract metadata (tags, labels) for Docker (devcontainer-dind)
         id: meta_dind
@@ -88,8 +91,8 @@ jobs:
           context: ${{ env.DIR_NAME }}
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta_base.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta_dind.outputs.tags }}
+          labels: ${{ steps.meta_dind.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           no-cache: ${{ github.event_name != 'pull_request' }}
@@ -98,7 +101,7 @@ jobs:
         run: |
           DIR_NAME=devcontainer-k8s
           echo "DIR_NAME=$DIR_NAME" >> $GITHUB_ENV
-          echo "IMAGE_NAME=istvano/$DIR_NAME" >> $GITHUB_ENV
+          echo "IMAGE_NAME=$USERNAME/$DIR_NAME" >> $GITHUB_ENV
 
       - name: Extract metadata (tags, labels) for Docker (devcontainer-k8s)
         id: meta_k8s
@@ -117,8 +120,8 @@ jobs:
           context: ${{ env.DIR_NAME }}
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta_base.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta_k8s.outputs.tags }}
+          labels: ${{ steps.meta_k8s.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           no-cache: ${{ github.event_name != 'pull_request' }}
