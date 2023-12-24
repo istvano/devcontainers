@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - main
+    tags:
+      - "v*.*.*"
   pull_request: {}
 
 env:
-  REGISTRY: ghcr.io
+#  REGISTRY: ghcr.io
 
 jobs:
   build-and-push-images:
@@ -24,9 +26,8 @@ jobs:
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set DIR_NAME and IMAGE_NAME (devcontainer-base)
         run: |
@@ -34,13 +35,26 @@ jobs:
           echo "DIR_NAME=$DIR_NAME" >> $GITHUB_ENV
           echo "IMAGE_NAME=gantsign/$DIR_NAME" >> $GITHUB_ENV
 
+      - # Add support for more platforms with QEMU (optional)
+          # https://github.com/docker/setup-qemu-action
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - # create a build kit builder instance
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Extract metadata (tags, labels) for Docker (devcontainer-base)
         id: meta_base
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          flavor: |
-            latest=true
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
           labels: |
             org.opencontainers.image.title=Development Container Base
             org.opencontainers.image.description=Base container image for development
@@ -49,21 +63,13 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ env.DIR_NAME }}
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta_base.outputs.tags }}
-          cache-from: type=registry,ref=${{ fromJSON(steps.meta_base.outputs.json).tags[1] }}
-          cache-to: type=inline
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           no-cache: ${{ github.event_name != 'pull_request' }}
-          # Omit licenses label as there's no pratical way to get an accurate value for all the Ubuntu packages
-          # org.opencontainers.image.licenses=
-          labels: |
-            org.opencontainers.image.title=${{ fromJSON(steps.meta_base.outputs.json).labels['org.opencontainers.image.title'] }}
-            org.opencontainers.image.description=${{ fromJSON(steps.meta_base.outputs.json).labels['org.opencontainers.image.description'] }}
-            org.opencontainers.image.url=${{ fromJSON(steps.meta_base.outputs.json).labels['org.opencontainers.image.url'] }}
-            org.opencontainers.image.source=${{ fromJSON(steps.meta_base.outputs.json).labels['org.opencontainers.image.source'] }}
-            org.opencontainers.image.version=${{ fromJSON(steps.meta_base.outputs.json).labels['org.opencontainers.image.version'] }}
-            org.opencontainers.image.created=${{ fromJSON(steps.meta_base.outputs.json).labels['org.opencontainers.image.created'] }}
-            org.opencontainers.image.revision=${{ fromJSON(steps.meta_base.outputs.json).labels['org.opencontainers.image.revision'] }}
 
       - name: Set DIR_NAME and IMAGE_NAME (devcontainer-dind)
         run: |
@@ -75,9 +81,13 @@ jobs:
         id: meta_dind
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          flavor: |
-            latest=true
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
           labels: |
             org.opencontainers.image.title=Development Container DinD
             org.opencontainers.image.description=Container image for development with Docker-in-Docker
@@ -86,21 +96,13 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ env.DIR_NAME }}
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta_dind.outputs.tags }}
-          cache-from: type=registry,ref=${{ fromJSON(steps.meta_dind.outputs.json).tags[1] }}
-          cache-to: type=inline
+          tags: ${{ steps.meta_base.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           no-cache: ${{ github.event_name != 'pull_request' }}
-          # Omit licenses label as there's no pratical way to get an accurate value for all the Ubuntu packages
-          # org.opencontainers.image.licenses=
-          labels: |
-            org.opencontainers.image.title=${{ fromJSON(steps.meta_dind.outputs.json).labels['org.opencontainers.image.title'] }}
-            org.opencontainers.image.description=${{ fromJSON(steps.meta_dind.outputs.json).labels['org.opencontainers.image.description'] }}
-            org.opencontainers.image.url=${{ fromJSON(steps.meta_dind.outputs.json).labels['org.opencontainers.image.url'] }}
-            org.opencontainers.image.source=${{ fromJSON(steps.meta_dind.outputs.json).labels['org.opencontainers.image.source'] }}
-            org.opencontainers.image.version=${{ fromJSON(steps.meta_dind.outputs.json).labels['org.opencontainers.image.version'] }}
-            org.opencontainers.image.created=${{ fromJSON(steps.meta_dind.outputs.json).labels['org.opencontainers.image.created'] }}
-            org.opencontainers.image.revision=${{ fromJSON(steps.meta_dind.outputs.json).labels['org.opencontainers.image.revision'] }}
 
       - name: Set DIR_NAME and IMAGE_NAME (devcontainer-k8s)
         run: |
@@ -112,9 +114,13 @@ jobs:
         id: meta_k8s
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          flavor: |
-            latest=true
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
           labels: |
             org.opencontainers.image.title=Development Container K8s
             org.opencontainers.image.description=Container image for development with Kubernetes (K3s)
@@ -123,24 +129,16 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ env.DIR_NAME }}
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta_k8s.outputs.tags }}
-          cache-from: type=registry,ref=${{ fromJSON(steps.meta_k8s.outputs.json).tags[1] }}
-          cache-to: type=inline
+          tags: ${{ steps.meta_base.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           no-cache: ${{ github.event_name != 'pull_request' }}
-          # Omit licenses label as there's no pratical way to get an accurate value for all the Ubuntu packages
-          # org.opencontainers.image.licenses=
-          labels: |
-            org.opencontainers.image.title=${{ fromJSON(steps.meta_k8s.outputs.json).labels['org.opencontainers.image.title'] }}
-            org.opencontainers.image.description=${{ fromJSON(steps.meta_k8s.outputs.json).labels['org.opencontainers.image.description'] }}
-            org.opencontainers.image.url=${{ fromJSON(steps.meta_k8s.outputs.json).labels['org.opencontainers.image.url'] }}
-            org.opencontainers.image.source=${{ fromJSON(steps.meta_k8s.outputs.json).labels['org.opencontainers.image.source'] }}
-            org.opencontainers.image.version=${{ fromJSON(steps.meta_k8s.outputs.json).labels['org.opencontainers.image.version'] }}
-            org.opencontainers.image.created=${{ fromJSON(steps.meta_k8s.outputs.json).labels['org.opencontainers.image.created'] }}
-            org.opencontainers.image.revision=${{ fromJSON(steps.meta_k8s.outputs.json).labels['org.opencontainers.image.revision'] }}
 
       - name: Build and push Docker image (devcontainer-python3.9)
         uses: devcontainers/ci@v0.3
         with:
           subFolder: devcontainer-python3.9
-          imageName: ghcr.io/gantsign/devcontainer-python3.9
+          imageName: istvano/devcontainer-python
